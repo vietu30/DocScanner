@@ -1,0 +1,81 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="@color/white">
+
+        <ImageView
+            android:id="@+id/menuIcon"
+            android:src="@drawable/ic_menu"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="start|center_vertical"
+            android:layout_marginStart="16dp"/>
+
+        <TextView
+            android:id="@+id/appTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DocScanner"
+            android:textStyle="bold"
+            android:textSize="26dp"
+            android:textColor="@android:color/black"
+            android:layout_gravity="center"/>
+
+        <ImageView
+            android:id="@+id/searchIcon"
+            android:src="@android:drawable/ic_menu_search"
+            android:layout_height="32dp"
+            android:layout_width="32dp"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="16dp"
+            android:tint="@android:color/black"
+            />
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/scanList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="70dp"
+        android:layout_marginBottom="100dp"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/scanButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:fabCustomSize="72dp"
+
+        android:src="@android:drawable/ic_menu_camera"
+        android:scaleType="center"
+        android:tint="@android:color/white"
+
+        android:layout_marginBottom="110dp"
+
+        app:backgroundTint="#9fc5e8"
+        app:layout_anchor="@id/scanList"
+        app:layout_anchorGravity="bottom|center"/>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+
+        app:itemIconSize="30dp"
+        app:labelVisibilityMode="labeled"
+
+        android:layout_gravity="bottom"
+        android:background="@android:color/white"
+        app:itemRippleColor="@android:color/transparent"
+        app:menu="@menu/bottom_menu"
+
+        app:itemIconTint="@color/nav_color"
+        app:itemTextColor="@color/nav_color"
+       />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
