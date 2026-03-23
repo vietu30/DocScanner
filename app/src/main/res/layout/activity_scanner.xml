@@ -1,10 +1,119 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- CAMERA PREVIEW -->
     <androidx.camera.view.PreviewView
         android:id="@+id/previewView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-</FrameLayout>
+
+    <!-- OVERLAY TỐI -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#66000000"/>
+
+    <!-- KHUNG SCAN -->
+    <FrameLayout
+        android:id="@+id/scanFrame"
+        android:layout_width="match_parent"
+        android:layout_height="700dp"
+        android:layout_marginBottom="110dp"
+        android:background="@drawable/bg_scan_frame"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:layout_constraintVertical_bias="0.4"/>
+
+    <!-- TEXT DETECT -->
+    <TextView
+        android:id="@+id/txtDetect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Detecting document..."
+        android:textColor="@android:color/white"
+        android:textSize="13sp"
+        android:background="#66000000"
+        android:padding="8dp"
+
+        app:layout_constraintBottom_toTopOf="@id/btnCapture"
+        android:layout_marginBottom="30dp"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- NÚT CHỤP -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnCapture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:fabCustomSize="72dp"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+        app:tint="@android:color/white"
+        android:src="@drawable/icon_camera"
+        android:scaleType="center"
+        android:tint="@android:color/white"
+        app:maxImageSize="40dp"
+        android:layout_marginBottom="90dp"
+        app:backgroundTint="#0069ff"
+
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+    <!-- TOP -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="#99000000"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/scanFrame"/>
+
+    <!-- BOTTOM -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="#99000000"
+        app:layout_constraintTop_toBottomOf="@id/scanFrame"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <!-- LEFT -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#99000000"
+        app:layout_constraintTop_toTopOf="@id/scanFrame"
+        app:layout_constraintBottom_toBottomOf="@id/scanFrame"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/scanFrame"/>
+
+    <!-- RIGHT -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#99000000"
+        app:layout_constraintTop_toTopOf="@id/scanFrame"
+        app:layout_constraintBottom_toBottomOf="@id/scanFrame"
+        app:layout_constraintStart_toEndOf="@id/scanFrame"
+        app:layout_constraintEnd_toEndOf="parent"/>
+    <ImageView
+        android:id="@+id/imgPreview"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="centerCrop"
+        android:background="@drawable/bg_preview"
+
+        android:visibility="gone"
+
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="40dp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

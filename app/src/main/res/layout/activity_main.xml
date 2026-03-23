@@ -3,6 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="#F5F5F5"
+    tools:context=".MainActivity"
     android:layout_height="match_parent">
 
     <androidx.appcompat.widget.Toolbar
@@ -31,7 +33,7 @@
 
         <ImageView
             android:id="@+id/searchIcon"
-            android:src="@android:drawable/ic_menu_search"
+            android:src="@drawable/icon_search"
             android:layout_height="32dp"
             android:layout_width="32dp"
             android:layout_gravity="end|center_vertical"
@@ -52,14 +54,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:fabCustomSize="72dp"
-
-        android:src="@android:drawable/ic_menu_camera"
+        app:tint="@android:color/white"
+        android:src="@drawable/icon_camera"
         android:scaleType="center"
         android:tint="@android:color/white"
-
+        app:maxImageSize="40dp"
         android:layout_marginBottom="110dp"
 
-        app:backgroundTint="#9fc5e8"
+            app:backgroundTint="#0069ff"
         app:layout_anchor="@id/scanList"
         app:layout_anchorGravity="bottom|center"/>
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -77,5 +79,6 @@
 
         app:itemIconTint="@color/nav_color"
         app:itemTextColor="@color/nav_color"
-       />
+        app:itemActiveIndicatorStyle="@null"
+        />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
