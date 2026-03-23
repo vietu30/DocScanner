@@ -5,11 +5,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import android.content.Intent
+import com.example.docscanner.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val binding = ActivityMainBinding.inflate(layoutInflater)
+
         setContentView(R.layout.activity_main)
 
         val toolbar = findViewById<Toolbar>(R.id.topBar)
@@ -26,7 +30,10 @@ class MainActivity : AppCompatActivity() {
             ScanItem("Receipt_Lunch.pdf","Oct 18, 2023 • 420 KB"),
             ScanItem("Identity_Card_Scan.pdf","Oct 15, 2023 • 1.1 MB")
         )
-
+        val scanButton = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.scanButton)
+        scanButton.setOnClickListener {
+            startActivity(Intent(this, ScannerActivity::class.java))
+        }
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = ScanAdapter(scanList)
     }
