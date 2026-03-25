@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000">
+
+    <!-- VIEWPAGER -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomBar"/>
+
+    <!-- THANH DƯỚI -->
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:background="#111"
+
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- XOÁ -->
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/icon_delete"
+            android:background="@android:color/transparent"
+            android:tint="@android:color/white"
+
+            android:scaleType="centerInside"
+            android:padding="12dp"/>
+
+        <!-- PDF -->
+        <ImageButton
+            android:id="@+id/btnSavePdf"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/icon_pdf"
+            android:background="@android:color/transparent"
+            android:tint="@android:color/white"
+
+            android:scaleType="centerInside"
+            android:padding="12dp"
+            android:layout_marginStart="40dp"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

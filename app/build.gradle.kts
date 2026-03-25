@@ -57,5 +57,6 @@ dependencies {
     implementation("androidx.camera:camera-view:1.3.3")
     implementation("com.guolindev.permissionx:permissionx:1.8.1")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
-
+    implementation("com.github.yalantis:ucrop:2.2.6")
+    implementation("com.itextpdf:itext7-core:7.2.5")
 }

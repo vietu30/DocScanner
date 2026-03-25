@@ -1,58 +1,87 @@
 package com.example.docscanner
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.media.ExifInterface
 import android.os.Bundle
-import android.view.ViewGroup
-import android.widget.ImageView
+import android.view.View
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.viewpager2.widget.ViewPager2
+import java.io.File
 
 class PreviewActivity : AppCompatActivity() {
 
+    private lateinit var imageList: ArrayList<String>
+    private lateinit var viewPager: ViewPager2
+    private lateinit var adapter: ImagePagerAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_preview)
 
-        val imageView = ImageView(this)
-        imageView.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        )
-        imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+        // ===== GET DATA =====
+        imageList = intent.getStringArrayListExtra("image_list") ?: arrayListOf()
 
-        setContentView(imageView)
+        // ===== VIEWPAGER =====
+        viewPager = findViewById(R.id.viewPager)
+        adapter = ImagePagerAdapter(imageList)
+        viewPager.adapter = adapter
 
-        val path = intent.getStringExtra("image_path")
+        // ===== DELETE =====
+        findViewById<View>(R.id.btnDelete).setOnClickListener {
 
-        val bitmap = rotateBitmapIfNeeded(path!!)
-        imageView.setImageBitmap(bitmap)
-    }
-    private fun rotateBitmapIfNeeded(path: String): Bitmap {
-        val bitmap = BitmapFactory.decodeFile(path)
+            if (imageList.isEmpty()) return@setOnClickListener
 
-        val exif = ExifInterface(path)
-        val orientation = exif.getAttributeInt(
-            ExifInterface.TAG_ORIENTATION,
-            ExifInterface.ORIENTATION_NORMAL
-        )
+            val position = viewPager.currentItem
 
-        val matrix = Matrix()
+            // xoá file
+            File(imageList[position]).delete()
 
-        when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
-            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
-            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+            // xoá khỏi list
+            imageList.removeAt(position)
+
+            adapter.notifyDataSetChanged()
+
+            if (imageList.isEmpty()) {
+                finish()
+            }
         }
 
-        return Bitmap.createBitmap(
-            bitmap,
-            0,
-            0,
-            bitmap.width,
-            bitmap.height,
-            matrix,
-            true
-        )
+        // ===== SAVE PDF =====
+
+
+                findViewById<View>(R.id.btnSavePdf).setOnClickListener {
+
+                    if (imageList.isEmpty()) {
+                        Toast.makeText(this, "Không có ảnh", Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
+
+                    val editText = EditText(this)
+                    editText.hint = "Nhập tên file PDF"
+
+                    AlertDialog.Builder(this)
+                        .setTitle("Đặt tên file")
+                        .setView(editText)
+                        .setPositiveButton("Lưu") { _, _ ->
+
+                            val fileName = editText.text.toString().ifEmpty {
+                                "scan_${System.currentTimeMillis()}"
+                            }
+
+                            val pdfFile = File(
+                                getExternalFilesDir(null),
+                                "$fileName.pdf"
+                            )
+
+                            createPdf(this, imageList, pdfFile.absolutePath)
+
+                            Toast.makeText(this, "Đã lưu:\n${pdfFile.name}", Toast.LENGTH_LONG).show()
+
+                            finish()
+                        }
+                        .setNegativeButton("Huỷ", null)
+                        .show()
+                }
     }
 }

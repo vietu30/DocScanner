@@ -1,40 +1,85 @@
 package com.example.docscanner
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.content.Intent
-import com.example.docscanner.databinding.ActivityMainBinding
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var recyclerView: RecyclerView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = ActivityMainBinding.inflate(layoutInflater)
-
         setContentView(R.layout.activity_main)
 
+        // Toolbar
         val toolbar = findViewById<Toolbar>(R.id.topBar)
         setSupportActionBar(toolbar)
-        supportActionBar?.title = "DocScanner"
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        val recyclerView = findViewById<RecyclerView>(R.id.scanList)
+        // RecyclerView
+        recyclerView = findViewById(R.id.scanList)
+        recyclerView.layoutManager = LinearLayoutManager(this)
 
-        val scanList = listOf(
-            ScanItem("Invoice_001.pdf","Oct 24, 2023 • 1.2 MB"),
-            ScanItem("Document_Scan.pdf","Oct 22, 2023 • 850 KB"),
-            ScanItem("Work_Contract_Signed.pdf","Oct 19, 2023 • 2.4 MB"),
-            ScanItem("Receipt_Lunch.pdf","Oct 18, 2023 • 420 KB"),
-            ScanItem("Identity_Card_Scan.pdf","Oct 15, 2023 • 1.1 MB")
-        )
-        val scanButton = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.scanButton)
+        // Button scan
+        val scanButton = findViewById<FloatingActionButton>(R.id.scanButton)
         scanButton.setOnClickListener {
             startActivity(Intent(this, ScannerActivity::class.java))
         }
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = ScanAdapter(scanList)
+
+        loadPdfList()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadPdfList() // reload khi quay lại
+    }
+
+    // ===== LOAD PDF =====
+    private fun loadPdfList() {
+
+        val folder = getExternalFilesDir(null)
+
+        val files = folder?.listFiles()
+            ?.filter { it.extension == "pdf" }
+            ?.sortedByDescending { it.lastModified() }
+            ?: listOf()
+
+        val items = files.map {
+            ScanItem(
+                fileName = it.name,
+                fileInfo = "${it.length() / 1024} KB",
+                file = it
+            )
+        }
+
+        val adapter = ScanAdapter(items) { item ->
+            openPdf(item.file)
+        }
+
+        recyclerView.adapter = adapter
+    }
+
+    // ===== MỞ PDF =====
+    private fun openPdf(file: File) {
+
+        val uri: Uri = FileProvider.getUriForFile(
+            this,
+            "${packageName}.provider",
+            file
+        )
+
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.setDataAndType(uri, "application/pdf")
+        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+
+        startActivity(intent)
     }
 }
