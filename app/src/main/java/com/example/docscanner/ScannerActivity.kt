@@ -18,12 +18,18 @@ import com.permissionx.guolindev.PermissionX
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.io.File
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.media.ExifInterface
+
 class ScannerActivity : AppCompatActivity() {
     private lateinit var imageCapture: ImageCapture
     private lateinit var previewView: PreviewView
     private lateinit var cameraExecutor: ExecutorService
 
     private lateinit var binding: ActivityScannerBinding
+    private var lastImagePath: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +46,15 @@ class ScannerActivity : AppCompatActivity() {
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         requestCameraPermission()
+
+        binding.imgPreview.setOnClickListener {
+
+            if (lastImagePath != null) {
+                val intent = Intent(this, PreviewActivity::class.java)
+                intent.putExtra("image_path", lastImagePath)
+                startActivity(intent)
+            }
+        }
     }
 
     private fun requestCameraPermission() {
@@ -71,7 +86,6 @@ class ScannerActivity : AppCompatActivity() {
             }
     }
     private fun takePhoto(){
-
         val photoFile = File(
             externalMediaDirs.firstOrNull(),
             "IMG_${System.currentTimeMillis()}.jpg"
@@ -84,14 +98,14 @@ class ScannerActivity : AppCompatActivity() {
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-
+                    lastImagePath = photoFile.absolutePath
                     Toast.makeText(
                         this@ScannerActivity,
-                        "Saved: @{photoFile.absolutePath}",
+                        "Saved: ${photoFile.absolutePath}",
                         Toast.LENGTH_SHORT
                     ).show()
 
-                    val bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
+                    val bitmap = rotateBitmapIfNeeded(photoFile.absolutePath)
                     binding.imgPreview.setImageBitmap(bitmap)
                     binding.imgPreview.visibility = View.VISIBLE
                 }
@@ -133,7 +147,33 @@ class ScannerActivity : AppCompatActivity() {
 
         }, ContextCompat.getMainExecutor(this))
     }
+    private fun rotateBitmapIfNeeded(path: String): Bitmap {
+        val bitmap = BitmapFactory.decodeFile(path)
 
+        val exif = ExifInterface(path)
+        val orientation = exif.getAttributeInt(
+            ExifInterface.TAG_ORIENTATION,
+            ExifInterface.ORIENTATION_NORMAL
+        )
+
+        val matrix = Matrix()
+
+        when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+        }
+
+        return Bitmap.createBitmap(
+            bitmap,
+            0,
+            0,
+            bitmap.width,
+            bitmap.height,
+            matrix,
+            true
+        )
+    }
     override fun onDestroy() {
         super.onDestroy()
         cameraExecutor.shutdown()
