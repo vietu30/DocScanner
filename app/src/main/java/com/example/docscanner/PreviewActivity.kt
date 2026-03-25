@@ -1,5 +1,6 @@
 package com.example.docscanner
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
@@ -78,6 +79,10 @@ class PreviewActivity : AppCompatActivity() {
 
                             Toast.makeText(this, "Đã lưu:\n${pdfFile.name}", Toast.LENGTH_LONG).show()
 
+                            // Nhảy thẳng về MainActivity, clear ScannerActivity khỏi stack
+                            val intent = Intent(this, MainActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                            startActivity(intent)
                             finish()
                         }
                         .setNegativeButton("Huỷ", null)
