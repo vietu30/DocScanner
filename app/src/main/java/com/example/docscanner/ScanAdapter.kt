@@ -32,11 +32,7 @@ class ScanAdapter(
             onClick(item)
         }
     }
-    class ScanAdapter(
-        private val items: List<ScanItem>,
-        private val onClick: (ScanItem) -> Unit
-    )
-
     override fun getItemCount(): Int = items.size
 }
+
 

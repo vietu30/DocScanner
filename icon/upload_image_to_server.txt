@@ -1,0 +1,52 @@
+
+1. Thêm dependency
+implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+
+2. Tạo API interface
+public interface ApiService {
+
+    @Multipart
+    @POST("upload")
+    Call<ResponseBody> uploadImage(
+            @Part MultipartBody.Part image
+    );
+}
+
+3. Tạo Retrofit instance
+Retrofit retrofit = new Retrofit.Builder()
+        .baseUrl("https://your-api.com/")
+        .build();
+
+ApiService apiService = retrofit.create(ApiService.class);
+
+
+4. Convert file ảnh → Multipart
+File file = new File(imagePath);
+
+// RequestBody
+RequestBody requestFile =
+        RequestBody.create(file, MediaType.parse("image/*"));
+
+// MultipartBody.Part
+MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+
+5. Gửi request
+Call<ResponseBody> call = apiService.uploadImage(body);
+
+call.enqueue(new Callback<ResponseBody>() {
+    @Override
+    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+        if (response.isSuccessful()) {
+            Log.d("UPLOAD", "Success");
+        } else {
+            Log.e("UPLOAD", "Failed");
+        }
+    }
+
+    @Override
+    public void onFailure(Call<ResponseBody> call, Throwable t) {
+        Log.e("UPLOAD", "Error: " + t.getMessage());
+    }
+});
