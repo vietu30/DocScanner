@@ -35,6 +35,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         loadPdfList()
+
+        val bottomNav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottomNav)
+        bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> true
+                R.id.nav_settings -> {
+                    startActivity(Intent(this, SettingsActivity::class.java))
+                    true
+                }
+                else -> false
+            }
+        }
+
     }
 
     override fun onResume() {
@@ -82,4 +95,5 @@ class MainActivity : AppCompatActivity() {
 
         startActivity(intent)
     }
+
 }

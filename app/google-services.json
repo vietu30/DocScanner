@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "844235246700",
+    "project_id": "docscanner-546de",
+    "storage_bucket": "docscanner-546de.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:844235246700:android:1066e4d4f7de42f1499c49",
+        "android_client_info": {
+          "package_name": "com.example.docscanner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGvaw3HcXLPBlEIPq8V5yanmQDpzCYOkE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

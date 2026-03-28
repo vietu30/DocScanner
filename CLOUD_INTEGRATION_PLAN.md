@@ -53,24 +53,53 @@
 
 ## Phase 2 — Backend: CodeIgniter 4 REST API
 
-### Cài đặt môi trường
+### Cài đặt môi trường (Theo mentor)
 - [ ] Cài XAMPP → bật Apache + MySQL
-- [ ] Cài CodeIgniter 4 vào `htdocs/docscanner-api/`
+- [ ] Cài CodeIgniter 4 vào dự án API
+- [ ] Cấu hình VirtualHost Apache ở port `8001` trỏ đến public folder của API để giả lập domain:
+  ```apache
+  Listen 8001
+  <VirtualHost *:8001>
+      DocumentRoot "Đường/dẫn/đến/thư/mục/api/public"
+      ServerName  localhost:8001
+      <Directory "Đường/dẫn/đến/thư/mục/api/public">
+          Options FollowSymLinks
+          AllowOverride All
+          DirectoryIndex index.php index.html
+          Require all granted
+          RewriteEngine On
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule ^(.*)$ index.php/$1 [L]
+      </Directory>
+  </VirtualHost>
+  ```
 - [ ] Cài thư viện verify Firebase token cho PHP:
   `kreait/firebase-php` (qua Composer)
 
-### Database (MySQL)
+### Database (MySQL qua DBeaver)
 - [ ] Tạo database `docscanner`
-- [ ] Tạo bảng `users`: `id, firebase_uid, email, display_name, photo_url, created_at`
-- [ ] Tạo bảng `documents`: `id, user_id, file_name, file_path, file_size, share_token, created_at`
+- [ ] Tạo bảng `tbl_upload_images` (theo CSDL mentor cung cấp):
+  ```sql
+  CREATE TABLE tbl_upload_images (
+    id int(11) NOT NULL AUTO_INCREMENT,
+    active tinyint(1) DEFAULT 1,
+    user_id varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+    description varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    image_url varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+    created_at datetime DEFAULT current_timestamp(),
+    updated_at datetime DEFAULT NULL,
+    PRIMARY KEY (id)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  ```
+- [ ] Tạo bảng `users`: `id, firebase_uid, email, display_name, photo_url, created_at` (Dùng để link với `user_id` ở bảng trên)
 
 ### API Endpoints
-- [ ] `POST /api/auth/login` — verify Firebase idToken → tạo JWT → trả app
-- [ ] `GET  /api/documents` — list PDF của user (cần JWT)
-- [ ] `POST /api/documents/upload` — nhận file PDF, lưu vào `uploads/{uid}/`
-- [ ] `DELETE /api/documents/{id}` — xóa PDF
-- [ ] `GET  /api/documents/{id}/share` — trả về public share link
-- [ ] `GET  /files/{share_token}` — endpoint công khai, trả file PDF (không cần JWT)
+- [ ] **Auth**: `POST /api/auth/login` — verify Firebase idToken → tạo Token/Session → trả app
+- [ ] **Images**: 
+  - `GET  /api/images` — lấy danh sách ảnh của user từ `tbl_upload_images`
+  - `POST /api/images/upload` — nhận file lưu vào `uploads/` trên server (trỏ từ VirtualHost), lưu URL vào `tbl_upload_images`
+  - `DELETE /api/images/{id}` — update `active = 0` (soft delete) trong `tbl_upload_images`
 
 ### Bảo mật
 - [ ] Middleware kiểm tra JWT cho tất cả endpoint (trừ `/files/`)
