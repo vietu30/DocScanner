@@ -1,4 +1,4 @@
-# 🔐 Firebase Auth — Cách hoạt động trong SettingsActivity
+# 🔐 Firebase Auth — Email/Password trong SettingsActivity
 
 ---
 
@@ -8,21 +8,20 @@
 
 ---
 
-### ❓ Câu hỏi: Mình đăng ký app trên Firebase, nó cấp Web Client ID, mình nhét ID đó vào code, khi chạy app báo lên Firebase qua file JSON, Firebase so sánh ID rồi cấp tài nguyên — đúng không?
+### ❓ Câu hỏi: Mình đăng ký app trên Firebase, nó cấp cấu hình, mình nhét vào file JSON, khi chạy app báo lên Firebase — đúng không?
 
 ### ✅ Bạn hiểu đúng **90%**! Chỉ cần chỉnh lại 1 điểm:
 
 | Điểm bạn nói | Đúng/Sai | Giải thích |
 |---|---|---|
 | Firebase là API | ✅ Đúng | Firebase Auth, Firestore... đều là REST API do Google host |
-| Đăng ký app → nhận Web Client ID | ✅ Đúng | ID này định danh app của bạn với hệ thống Google |
-| Viết ID vào code | ✅ Đúng | `WEB_CLIENT_ID` trong `SettingsActivity.kt` |
+| Đăng ký app → nhận config | ✅ Đúng | `google-services.json` chứa `project_id`, `api_key`... |
 | App báo lên Firebase **qua file JSON** | ⚠️ **Gần đúng** | `google-services.json` KHÔNG gửi lên server — nó được **đọc lúc build** (compile time) để nhúng API key vào bên trong file `.apk`. Khi chạy, app dùng thông tin đã nhúng sẵn đó để kết nối |
-| Firebase so sánh ID rồi cấp tài nguyên | ✅ Đúng | Firebase nhận request kèm API key → xác minh → cho phép hoặc từ chối |
+| Firebase so sánh key rồi cấp tài nguyên | ✅ Đúng | Firebase nhận request kèm API key → xác minh → cho phép hoặc từ chối |
 
 ---
 
-### 🔑 Điểm quan trọng: `google-services.json` hoạt động khi nào?
+### 🔑 `google-services.json` hoạt động khi nào?
 
 ```
 Lúc BUILD (Android Studio compile):
@@ -33,255 +32,166 @@ Lúc CHẠY app (runtime):
     Firebase kiểm tra key → cấp tài nguyên (Auth, Database...)
 ```
 
-> Tưởng tượng `google-services.json` như tờ **đơn đăng ký** — bạn nộp 1 lần khi xây nhà (build).  
-> Còn **chìa khóa** (API key) thì được đúc ra từ đơn đó và gắn vào nhà luôn để dùng hàng ngày.
+> `google-services.json` như tờ **đơn đăng ký** — nộp 1 lần khi xây nhà (build).
+> Còn **chìa khóa** (API key) thì được đúc ra từ đơn đó và gắn vào nhà luôn.
 
 ---
 
-### 🌐 Firebase hoạt động như thế nào về mặt kỹ thuật?
+## 1. Firebase lưu gì khi dùng Email/Password?
+
+**Đúng! Firebase Authentication lưu thông tin người dùng.** Nhưng chỉ lưu thông tin xác thực, không lưu dữ liệu ảnh/document.
+
+| Firebase lưu | Firebase KHÔNG lưu |
+|---|---|
+| UID (chuỗi duy nhất định danh user) | Ảnh scan của bạn |
+| Email | Document PDF |
+| Password hash (mã hóa, không xem được) | Metadata file |
+| Ngày tạo tài khoản | Bất kỳ dữ liệu app nào |
+
+Dữ liệu ảnh/document được lưu trong MySQL (XAMPP) của bạn, liên kết qua `user_id = UID`.
+
+---
+
+## 2. Luồng đăng nhập Email/Password
 
 ```
-App Android
-    │
-    │  HTTPS request tới: https://identitytoolkit.googleapis.com/...
-    │  Kèm theo: API key (từ google-services.json)
-    ↓
-Firebase Server (của Google, trên Internet)
-    │
-    ├── Kiểm tra API key có hợp lệ không
-    ├── Xử lý đăng nhập Google (verify idToken)
-    └── Trả về FirebaseUser (UID, email, tên...)
-    ↓
-App nhận được thông tin user
+Bước 1 — User nhập email + password → bấm "Đăng nhập"
+
+Bước 2 — App gọi Firebase Auth API:
+    auth.signInWithEmailAndPassword(email, password)
+
+Bước 3 — Firebase kiểm tra:
+    ├── Email có tồn tại trong hệ thống không?
+    ├── Password có khớp với hash đã lưu không?
+    └── Nếu OK → Trả về FirebaseUser
+
+Bước 4 — App nhận FirebaseUser:
+    auth.currentUser?.uid  ← UID dùng để gọi API backend
 ```
 
-> Đây là lý do app **cần INTERNET permission** — vì Firebase Auth hoạt động hoàn toàn qua Internet.
+---
+
+## 3. Luồng đăng ký tài khoản mới
+
+```
+Bước 1 — User nhập email + password + confirm password → bấm "Tạo tài khoản"
+
+Bước 2 — App kiểm tra local:
+    ├── Password == confirmPassword?  (nếu không → báo lỗi ngay, không gọi Firebase)
+    └── Password >= 6 ký tự?
+
+Bước 3 — App gọi Firebase Auth API:
+    auth.createUserWithEmailAndPassword(email, password)
+
+Bước 4 — Firebase tạo user mới:
+    ├── Kiểm tra email chưa được đăng ký
+    ├── Hash password và lưu vào hệ thống
+    ├── Tạo UID duy nhất cho user
+    └── Trả về FirebaseUser (tự động đăng nhập luôn)
+```
 
 ---
 
+## 4. Toggle UI: Login ↔ Register
+
+App có 2 mode, bấm nút để chuyển:
+
+```
+MODE LOGIN (mặc định):          MODE REGISTER:
+┌─────────────────────┐         ┌─────────────────────┐
+│ Email               │         │ Email               │
+│ Mật khẩu           │  ──►    │ Mật khẩu           │
+│ [ Đăng nhập ]       │         │ Xác nhận mật khẩu  │
+│ [ Tạo TK mới ]      │         │ [ Tạo tài khoản ]   │
+└─────────────────────┘         │ [ ← Quay lại ]      │
+                                └─────────────────────┘
+```
+
+Logic trong `SettingsActivity.kt`:
+- `isRegisterMode = false` → Login mode
+- `isRegisterMode = true` → Register mode
+- `layoutConfirmPassword.visibility` = GONE/VISIBLE để ẩn/hiện ô xác nhận
+
 ---
 
-## 0.5 Tại sao app biết đăng nhập qua Google? Có cần tài khoản/mật khẩu không?
+## 5. Giải thích code `SettingsActivity.kt`
 
-### ❓ Câu hỏi: App mình biết đăng nhập qua Google là do đâu? Mình có phải định nghĩa user/password không? Phải request cái gì thì Firebase mới biết user này đang đăng nhập?
-
-### ✅ Trả lời:
-
-**Không cần định nghĩa tài khoản/mật khẩu** — vì bạn đang dùng **"đăng nhập ủy quyền"** (OAuth 2.0). Mật khẩu do Google giữ, app của bạn không bao giờ nhìn thấy.
-
----
-
-### App "biết" dùng Google là do... bạn viết code nói ra điều đó!
-
+### 5.1 Đăng nhập
 ```kotlin
-// Dòng này = "Tôi muốn dùng Google Sign-In"
-val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-    .requestIdToken(WEB_CLIENT_ID)
-    .requestEmail()
-    .build()
+auth.signInWithEmailAndPassword(email, password)
+    .addOnSuccessListener { updateUI() }
+    .addOnFailureListener { Toast lỗi }
 ```
 
-Bạn có thể thay bằng Facebook, GitHub, Apple... tùy thư viện bạn tích hợp.  
-Firebase Auth hỗ trợ nhiều provider, bạn chọn cái nào thì cấu hình cái đó.
+### 5.2 Đăng ký
+```kotlin
+// Kiểm tra local trước
+if (password != confirm) { → Toast lỗi; return }
+if (password.length < 6) { → Toast lỗi; return }
 
----
-
-### Luồng request để Firebase "biết" user này đã đăng nhập:
-
+// Gọi Firebase
+auth.createUserWithEmailAndPassword(email, password)
+    .addOnSuccessListener { updateUI() }  // tự đăng nhập luôn sau khi tạo
 ```
-Bước 1 — App gửi yêu cầu đến Google (KHÔNG phải Firebase):
-    googleSignInClient.signInIntent
-    → Mở popup Google → User chọn tài khoản → Google xác minh mật khẩu
 
-Bước 2 — Google trả về idToken cho app:
-    account.idToken  ← Bằng chứng "user này đã xác minh với Google"
-
-Bước 3 — App gửi idToken lên Firebase (request thật sự):
-    val credential = GoogleAuthProvider.getCredential(idToken, null)
-    auth.signInWithCredential(credential)
-    ↑ Đây mới là lúc app "nói chuyện" với Firebase Auth
-
-Bước 4 — Firebase kiểm tra idToken:
-    ├── Chữ ký của Google có hợp lệ không?
-    ├── Token có hết hạn chưa?
-    └── Nếu OK → Tạo/cập nhật user trong Firebase → Trả về FirebaseUser
-
-Bước 5 — App nhận FirebaseUser:
-    auth.currentUser  ← Từ đây trở đi app biết ai đang đăng nhập
+### 5.3 Lấy UID sau login
+```kotlin
+val uid = auth.currentUser?.uid   // ← LocalcAche, không cần internet
 ```
 
 ---
 
-### So sánh: Đăng nhập truyền thống vs Google Sign-In
+## 6. Khi app yêu cầu dữ liệu, Firebase xử lý user ID như thế nào?
 
-| | Email/Password truyền thống | Google Sign-In |
+### ❓ Câu hỏi: Mình sẽ yêu cầu về `user_id` đúng không? Vậy Firebase xử lý ra sao?
+
+**Đúng! Và đây là điều quan trọng cần hiểu rõ:**
+
+**Firebase KHÔNG phải là nơi lưu dữ liệu ảnh của bạn** — Firebase chỉ làm nhiệm vụ **xác định "người dùng đó là ai"** rồi trả lại `uid`. Còn việc lấy dữ liệu (ảnh, documents...) là công việc của **backend PHP (XAMPP) + MySQL**.
+
+---
+
+### Luồng hoàn chỉnh khi app yêu cầu dữ liệu:
+
+```
+1. App đã login xong → Firebase đang giữ session
+           ↓
+2. App lấy uid từ Firebase (LOCAL, không cần request lên mạng):
+   val uid = FirebaseAuth.getInstance().currentUser?.uid
+           ↓
+3. App gửi uid đó lên backend PHP của bạn:
+   GET /api/images?user_id=abc123XYZ789
+           ↓
+4. Backend PHP truy vấn MySQL:
+   SELECT * FROM tbl_upload_images WHERE user_id = 'abc123XYZ789'
+           ↓
+5. Backend trả về danh sách ảnh của đúng user đó
+```
+
+---
+
+### Firebase có tham gia vào bước lấy dữ liệu không?
+
+| Bước | Firebase tham gia? | Giải thích |
 |---|---|---|
-| Mật khẩu lưu ở đâu | Server của bạn (nguy hiểm nếu bị hack) | Google giữ (bạn không bao giờ thấy) |
-| Bạn phải làm gì | Tạo form, hash password, lưu DB | Chỉ cần đọc idToken từ Google |
-| Độ bảo mật | Phụ thuộc cách bạn code | Chuẩn bảo mật của Google (rất cao) |
-| Firebase lưu gì | email + password hash | Chỉ lưu UID + email (không có password) |
+| Đăng nhập / Đăng ký | ✅ Có | Firebase xác thực, cấp `uid` |
+| Lấy `uid` sau login | ✅ Có (local) | Đọc từ cache, **không cần internet** |
+| Gọi API lấy danh sách ảnh | ❌ Không | App tự gửi `uid` lên backend PHP |
+| Lưu ảnh vào MySQL | ❌ Không | Backend PHP tự xử lý |
 
----
-
-### Firebase lưu user ở đâu?
-
-Sau khi login lần đầu, Firebase **tự động tạo một user** trong hệ thống của họ:
-
-```
-Firebase Console → Authentication → Users
-┌────────────────────────────────────────────────────┐
-│ UID                │ Email             │ Provider   │
-├────────────────────────────────────────────────────┤
-│ abc123XYZ789...    │ user@gmail.com    │ google.com │
-└────────────────────────────────────────────────────┘
-```
-
-Bạn **không cần tự tạo bảng users** cho Firebase Auth — Firebase tự quản lý.  
-`user.uid` chính là cái UID đó, dùng để liên kết với database của mình (`tbl_upload_images.user_id`).
-
----
-
-
-
-```
-User nhấn "Đăng nhập với Google"
-        ↓
-GoogleSignInClient mở popup chọn tài khoản (của Google)
-        ↓
-Google xác thực tài khoản → trả về idToken
-        ↓
-App gửi idToken lên Firebase Auth
-        ↓
-Firebase xác nhận idToken hợp lệ → trả về FirebaseUser
-        ↓
-App lấy UID, email, tên, avatar từ FirebaseUser → cập nhật UI
-```
-
----
-
-## 2. idToken là gì? Tại sao lấy được key đăng nhập?
-
-### Câu hỏi: Sao app lại có thể "biết" người dùng là ai?
-
-Khi người dùng chọn tài khoản Google trong popup, Google làm 3 việc:
-
-1. **Xác minh** người dùng thật sự sở hữu tài khoản đó (qua mật khẩu/session)
-2. **Tạo ra** một `idToken` — một chuỗi mã hóa chứa thông tin người dùng
-3. **Trả về** `idToken` đó cho app
-
-```
-idToken trông như thế này (JWT):
-eyJhbGciOiJSUzI1NiIsImtpZCI6Ij...  (rất dài)
-
-Bên trong mã hóa có:
-{
-  "sub": "10234567890",        ← UID duy nhất của user
-  "email": "user@gmail.com",
-  "name": "Nguyen Van A",
-  "picture": "https://...",
-  "exp": 1743000000           ← Thời gian hết hạn (1 giờ)
-}
-```
-
-### Tại sao app TIN TƯỞNG idToken này?
-
-Vì idToken được **Google ký bằng private key riêng của họ**. Firebase Auth nhận token này và **xác minh chữ ký** đó bằng public key của Google.
-
-```
-Google ký token  →  Firebase kiểm tra chữ ký  →  Nếu hợp lệ = tin tưởng
-```
-
-> Giống như tờ tiền có hình watermark — không ai giả mạo được vì chỉ Ngân hàng Nhà nước mới có máy in đó.
-
----
-
-## 3. Web Client ID — Tại sao cần nó?
-
-```kotlin
-private val WEB_CLIENT_ID = "844235246700-kn0bh775r08a76pb6v3eqti5pi3phtcn.apps.googleusercontent.com"
-```
-
-Khi app yêu cầu Google đăng nhập, Google cần biết:
-> *"App này là ai? Có được phép yêu cầu thông tin user không?"*
-
-`WEB_CLIENT_ID` là **"thẻ căn cước"** của app, được tạo ra khi bạn đăng ký app trên Firebase Console. Google dùng ID này để:
-- Xác minh request đến từ đúng app
-- Biết phải trả idToken về cho project Firebase nào
-- Hiển thị tên app đúng trong popup đăng nhập
-
----
-
-## 4. Giải thích từng đoạn code trong `SettingsActivity.kt`
-
-### 4.1 Cấu hình Google Sign-In
-```kotlin
-val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-    .requestIdToken(WEB_CLIENT_ID)  // ← Yêu cầu Google trả về idToken
-    .requestEmail()                  // ← Yêu cầu lấy email
-    .build()
-googleSignInClient = GoogleSignIn.getClient(this, gso)
-```
-Đây là bước **cấu hình** — nói với Google SDK: "Khi đăng nhập, tôi cần idToken và email".
-
-### 4.2 Mở popup chọn tài khoản
-```kotlin
-binding.btnLogin.setOnClickListener {
-    signInLauncher.launch(googleSignInClient.signInIntent)
-}
-```
-`signInIntent` = Intent mở màn hình chọn tài khoản của Google (do Google SDK xử lý, không phải bạn tự vẽ).
-
-### 4.3 Nhận kết quả từ Google
-```kotlin
-private val signInLauncher = registerForActivityResult(
-    ActivityResultContracts.StartActivityForResult()
-) { result ->
-    val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-    val account = task.getResult(ApiException::class.java)
-    firebaseAuthWithGoogle(account.idToken!!)  // ← idToken lấy ở đây
-}
-```
-Sau khi user chọn tài khoản, Google gửi kết quả về đây. `account.idToken` chính là chuỗi JWT đã nói ở mục 2.
-
-### 4.4 Xác thực với Firebase
-```kotlin
-private fun firebaseAuthWithGoogle(idToken: String) {
-    val credential = GoogleAuthProvider.getCredential(idToken, null)
-    auth.signInWithCredential(credential)
-        .addOnSuccessListener {
-            updateUI()  // ← Login thành công
-        }
-}
-```
-`credential` = "Gói thông tin" gửi lên Firebase để xác thực.
-Firebase nhận idToken → kiểm tra chữ ký Google → xác nhận thật → tạo `FirebaseUser`.
-
-### 4.5 Lấy thông tin user sau login
-```kotlin
-val user = auth.currentUser
-user.displayName   // Tên
-user.email         // Email
-user.photoUrl      // URL ảnh đại diện
-user.uid           // ← Chuỗi ID duy nhất, dùng làm userId khi gọi API
-```
-
-> **`user.uid`** quan trọng nhất — đây là `userId` sẽ gửi kèm khi gọi API PHP để phân biệt ảnh của từng người.
-
----
-
-## 5. Kết nối với API Backend (bước tiếp theo)
-
-Sau khi login xong, `user.uid` sẽ được dùng như thế này khi gọi API:
-
-```
-GET /api/images?userId=<user.uid>
-POST /api/images/upload + userId=<user.uid>
-```
-
-Database `tbl_upload_images` lưu `user_id = user.uid` → mỗi user chỉ thấy ảnh của mình.
+> **Tóm lại:** Firebase đóng vai "cổng bảo mật" — chỉ để biết *ai đang dùng app*. Sau khi biết rồi (`uid`), mọi tương tác với dữ liệu đều đi qua backend PHP của bạn.
 
 ```
 Firebase UID:  "abc123XYZ789"
                     ↕
 tbl_upload_images.user_id = "abc123XYZ789"
 ```
+
+---
+
+### Tại sao không dùng Firebase để lưu dữ liệu luôn?
+
+Bạn **có thể** dùng Firestore/Firebase Storage thay cho MySQL + PHP, nhưng dự án này chọn XAMPP vì:
+- Kiểm soát hoàn toàn cấu trúc database
+- Dễ debug hơn khi học
+- Không phụ thuộc quota/pricing của Firebase
