@@ -101,13 +101,16 @@ class MainActivity : AppCompatActivity() {
                     }
                     recyclerView.adapter = adapter
                 } else {
-                    // Server trả lỗi hoặc không có data → fallback local
-                    loadPdfList()
+                    // Server trả về lỗi / không có data → danh sách trống
+                    // KHÔNG dùng local fallback vì file local không phân biệt account
+                    recyclerView.adapter = ScanAdapter(mutableListOf()) {}
+                    Toast.makeText(this@MainActivity, "Chưa có tài liệu nào", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                // Không kết nối được server → fallback local
-                Toast.makeText(this@MainActivity, "Không kết nối được server, hiển thị local", Toast.LENGTH_SHORT).show()
-                loadPdfList()
+                // Không kết nối được server → hiện danh sách rỗng, báo lỗi
+                // KHÔNG dùng local fallback vì file local không phân biệt account
+                recyclerView.adapter = ScanAdapter(mutableListOf()) {}
+                Toast.makeText(this@MainActivity, "Không kết nối được server", Toast.LENGTH_SHORT).show()
             }
         }
     }

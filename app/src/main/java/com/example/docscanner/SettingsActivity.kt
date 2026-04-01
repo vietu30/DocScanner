@@ -102,7 +102,7 @@ class SettingsActivity : AppCompatActivity() {
             binding.tvName.text  = "Chưa đăng nhập"
             binding.tvEmail.text = ""
             binding.imgAvatar.setImageResource(R.mipmap.ic_launcher_round)
-            // Reset về Login mode
+
             binding.layoutConfirmPassword.visibility = View.GONE
             binding.btnLogin.text      = "Đăng nhập"
             binding.btnToggleMode.text = "Tạo tài khoản mới"
