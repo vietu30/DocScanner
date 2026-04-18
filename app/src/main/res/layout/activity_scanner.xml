@@ -1,7 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -9,15 +9,13 @@
     <androidx.camera.view.PreviewView
         android:id="@+id/previewView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </androidx.camera.view.PreviewView>
+        android:layout_height="match_parent" />
 
     <!-- OVERLAY TỐI -->
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#66000000"/>
+        android:background="#66000000" />
 
     <!-- KHUNG SCAN -->
     <FrameLayout
@@ -26,30 +24,99 @@
         android:layout_height="500dp"
         android:layout_marginBottom="110dp"
         android:background="@drawable/bg_scan_frame"
-
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.4" />
 
-        app:layout_constraintVertical_bias="0.4"/>
+    <!-- OVERLAY TOP -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="#99000000"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/scanFrame" />
 
-<!--    &lt;!&ndash; TEXT DETECT &ndash;&gt;-->
-<!--    <TextView-->
-<!--        android:id="@+id/txtDetect"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Detecting document..."-->
-<!--        android:textColor="@android:color/white"-->
-<!--        android:textSize="13sp"-->
-<!--        android:background="#66000000"-->
-<!--        android:padding="8dp"-->
+    <!-- OVERLAY BOTTOM -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="#99000000"
+        app:layout_constraintTop_toBottomOf="@id/scanFrame"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-<!--        app:layout_constraintBottom_toTopOf="@id/btnCapture"-->
-<!--        android:layout_marginBottom="30dp"-->
+    <!-- OVERLAY LEFT -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#99000000"
+        app:layout_constraintTop_toTopOf="@id/scanFrame"
+        app:layout_constraintBottom_toBottomOf="@id/scanFrame"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/scanFrame" />
 
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"/>-->
+    <!-- OVERLAY RIGHT -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#99000000"
+        app:layout_constraintTop_toTopOf="@id/scanFrame"
+        app:layout_constraintBottom_toBottomOf="@id/scanFrame"
+        app:layout_constraintStart_toEndOf="@id/scanFrame"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- GRID OVERLAY (hiển thị khi bật grid trong Settings) -->
+    <com.example.docscanner.GridOverlayView
+        android:id="@+id/gridOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@id/scanFrame"
+        app:layout_constraintBottom_toBottomOf="@id/scanFrame"
+        app:layout_constraintStart_toStartOf="@id/scanFrame"
+        app:layout_constraintEnd_toEndOf="@id/scanFrame" />
+
+    <!-- NÚT BACK (góc trên trái) -->
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="40dp"
+        android:src="@drawable/icon_back"
+        android:background="#55000000"
+        android:tint="#FFFFFF"
+        android:padding="10dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- FLASH TOGGLE (góc trên phải) -->
+    <ImageButton
+        android:id="@+id/btnFlash"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="40dp"
+        android:src="@drawable/icon_flash_off"
+        android:background="#55000000"
+        android:tint="#FFFFFF"
+        android:padding="10dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- PREVIEW ẢNH đã chụp -->
+    <ImageView
+        android:id="@+id/imgPreview"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:scaleType="centerCrop"
+        android:background="@drawable/bg_preview"
+        android:visibility="gone"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <!-- NÚT CHỤP -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -65,75 +132,22 @@
         app:maxImageSize="40dp"
         android:layout_marginBottom="90dp"
         app:backgroundTint="#0069ff"
-
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-    <!-- TOP -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="#99000000"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/scanFrame"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- BOTTOM -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="#99000000"
-        app:layout_constraintTop_toBottomOf="@id/scanFrame"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-
-    <!-- LEFT -->
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="#99000000"
-        app:layout_constraintTop_toTopOf="@id/scanFrame"
-        app:layout_constraintBottom_toBottomOf="@id/scanFrame"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/scanFrame"/>
-
-    <!-- RIGHT -->
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="#99000000"
-        app:layout_constraintTop_toTopOf="@id/scanFrame"
-        app:layout_constraintBottom_toBottomOf="@id/scanFrame"
-        app:layout_constraintStart_toEndOf="@id/scanFrame"
-        app:layout_constraintEnd_toEndOf="parent"/>
-    <ImageView
-        android:id="@+id/imgPreview"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:scaleType="centerCrop"
-        android:background="@drawable/bg_preview"
-
-        android:visibility="gone"
-
-        android:layout_marginStart="24dp"
-        android:layout_marginBottom="40dp"
-
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-
+    <!-- NÚT DONE (tick xanh) -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnDone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         app:fabCustomSize="56dp"
         app:backgroundTint="#00C853"
-    app:tint="@android:color/white"
+        app:tint="@android:color/white"
+        android:src="@drawable/icon_tick"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    android:src="@drawable/icon_tick"
-
-    android:layout_marginEnd="24dp"
-    android:layout_marginBottom="40dp"
-
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

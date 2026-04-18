@@ -28,17 +28,14 @@ fun createPdf(context: Context, imagePaths: List<String>, outputPath: String) {
             ImageDataFactory.create(path)
         }
 
-        // Tính kích thước trang theo ảnh (giữ tỉ lệ)
         val imgWidth = imageData.width
         val imgHeight = imageData.height
         val pageSize = PageSize(imgWidth, imgHeight)
 
         if (index == 0) {
-            // Trang đầu: set kích thước cho trang đã được tạo sẵn
             pdfDoc.defaultPageSize = pageSize
             pdfDoc.addNewPage(pageSize)
         } else {
-            // Trang tiếp theo: dùng AreaBreak để sang trang mới đúng cách
             document.add(AreaBreak(pageSize))
         }
 
