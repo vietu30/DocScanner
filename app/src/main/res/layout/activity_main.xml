@@ -13,13 +13,7 @@
         android:layout_height="70dp"
         android:background="@color/white">
 
-        <ImageView
-            android:id="@+id/menuIcon"
-            android:src="@drawable/ic_menu"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_gravity="start|center_vertical"
-            android:layout_marginStart="16dp"/>
+
 
         <TextView
             android:id="@+id/appTitle"
@@ -31,15 +25,7 @@
             android:textColor="@android:color/black"
             android:layout_gravity="center"/>
 
-        <ImageView
-            android:id="@+id/searchIcon"
-            android:src="@drawable/icon_search"
-            android:layout_height="32dp"
-            android:layout_width="32dp"
-            android:layout_gravity="end|center_vertical"
-            android:layout_marginEnd="16dp"
-            android:tint="@android:color/black"
-            />
+
     </androidx.appcompat.widget.Toolbar>
 
     <androidx.recyclerview.widget.RecyclerView

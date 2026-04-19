@@ -167,7 +167,7 @@
                         android:layout_weight="1" android:text="Tác giả"
                         android:textSize="15sp" android:textColor="#1A1A2E" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Việt Tùng" android:textColor="#0069FF" android:textStyle="bold" />
+                        android:text="Nhóm 11" android:textColor="#0069FF" android:textStyle="bold" />
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" />
@@ -178,7 +178,7 @@
                         android:layout_weight="1" android:text="Trường"
                         android:textSize="15sp" android:textColor="#1A1A2E" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="ĐH Công nghệ Thông tin" android:textColor="#888888" />
+                        android:text="ĐH Giao thông vận tải" android:textColor="#888888" />
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" />
@@ -189,7 +189,7 @@
                         android:layout_weight="1" android:text="Email liên hệ"
                         android:textSize="15sp" android:textColor="#1A1A2E" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="contact@docscanner.app" android:textColor="#0069FF" />
+                        android:text="viettungpham113@gmail.com" android:textColor="#0069FF" />
                 </LinearLayout>
 
             </LinearLayout>
