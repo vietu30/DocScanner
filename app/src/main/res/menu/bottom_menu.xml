@@ -4,10 +4,6 @@
         android:id="@+id/nav_home"
         android:title="Home"
         android:icon="@drawable/icon_home"/>
-    <item
-        android:id="@+id/nav_docs"
-        android:title="Docs"
-        android:icon="@drawable/icon_docs"/>
 
     <item
         android:id="@+id/nav_settings"

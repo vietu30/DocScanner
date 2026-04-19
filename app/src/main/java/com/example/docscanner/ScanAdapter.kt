@@ -1,20 +1,31 @@
-package com.example.docscanner;
+package com.example.docscanner
 
-import android.view.View;
-import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+
 class ScanAdapter(
-    private val items: List<ScanItem>,
+    private val items: MutableList<ScanItem>,
     private val onClick: (ScanItem) -> Unit
 ) : RecyclerView.Adapter<ScanAdapter.ScanViewHolder>() {
+
+    private var onLongClick: ((ScanItem, Int) -> Unit)? = null
+
+    fun setOnLongClickListener(listener: (ScanItem, Int) -> Unit) {
+        onLongClick = listener
+    }
+
+    fun removeAt(position: Int) {
+        items.removeAt(position)
+        notifyItemRemoved(position)
+    }
 
     class ScanViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val fileName: TextView = view.findViewById(R.id.fileName)
         val fileItem: TextView = view.findViewById(R.id.fileInfo)
     }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScanViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -24,19 +35,14 @@ class ScanAdapter(
 
     override fun onBindViewHolder(holder: ScanViewHolder, position: Int) {
         val item = items[position]
-
         holder.fileName.text = item.fileName
         holder.fileItem.text = item.fileInfo
-
-        holder.itemView.setOnClickListener {
-            onClick(item)
+        holder.itemView.setOnClickListener { onClick(item) }
+        holder.itemView.setOnLongClickListener {
+            onLongClick?.invoke(item, holder.adapterPosition)
+            true
         }
     }
-    class ScanAdapter(
-        private val items: List<ScanItem>,
-        private val onClick: (ScanItem) -> Unit
-    )
 
     override fun getItemCount(): Int = items.size
 }
-

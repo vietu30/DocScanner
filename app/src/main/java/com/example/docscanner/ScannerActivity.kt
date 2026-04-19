@@ -1,6 +1,7 @@
 package com.example.docscanner
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -31,103 +32,123 @@ class ScannerActivity : AppCompatActivity() {
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var binding: ActivityScannerBinding
 
-    // ✅ LIST ẢNH (QUAN TRỌNG)
     private val imageList = ArrayList<String>()
+
+    // Flash state
+    private var isFlashEnabled = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityScannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         previewView = binding.previewView
         cameraExecutor = Executors.newSingleThreadExecutor()
 
-        requestCameraPermission()
+        // ── Đọc Settings từ SharedPreferences ────────────────────────────
+        val prefs = getSharedPreferences("camera_settings", Context.MODE_PRIVATE)
 
-        // ===== CHỤP =====
+        // Grid lines
+        val showGrid = prefs.getBoolean("grid_lines", true)
+        binding.gridOverlay.visibility = if (showGrid) View.VISIBLE else View.GONE
+
+        // Flash (đọc trạng thái mặc định từ settings)
+        isFlashEnabled = prefs.getBoolean("auto_flash", false)
+        updateFlashIcon()
+
+        // ── Nút Back → về MainActivity ───────────────────────────────────
+        binding.btnBack.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            startActivity(intent)
+            finish()
+        }
+
+        // ── Nút Flash toggle ─────────────────────────────────────────────
+        binding.btnFlash.setOnClickListener {
+            isFlashEnabled = !isFlashEnabled
+            updateFlashIcon()
+            // Áp dụng ngay vào imageCapture nếu đã khởi tạo
+            if (::imageCapture.isInitialized) {
+                imageCapture.flashMode = if (isFlashEnabled)
+                    ImageCapture.FLASH_MODE_ON
+                else
+                    ImageCapture.FLASH_MODE_OFF
+            }
+        }
+
+        // ── Nút Chụp ─────────────────────────────────────────────────────
         binding.btnCapture.setOnClickListener {
             takePhoto()
         }
 
-        // ===== CLICK PREVIEW =====
+        // ── Click Preview thumbnail ───────────────────────────────────────
         binding.imgPreview.setOnClickListener {
-            if (imageList.isNotEmpty()) {
-                openPreview()
-            }
+            if (imageList.isNotEmpty()) openPreview()
         }
 
-        // ===== DONE =====
+        // ── Nút Done ─────────────────────────────────────────────────────
         binding.btnDone.setOnClickListener {
-
             if (imageList.isEmpty()) {
-                Toast.makeText(this, "Chưa có ảnh", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Chưa có ảnh nào", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
             openPreview()
         }
+
+        requestCameraPermission()
     }
 
-    // ===== MỞ PREVIEW =====
+    // ── Cập nhật icon Flash ───────────────────────────────────────────────
+    private fun updateFlashIcon() {
+        binding.btnFlash.setImageResource(
+            if (isFlashEnabled) R.drawable.icon_flash_on else R.drawable.icon_flash_off
+        )
+    }
+
+    // ── Mở PreviewActivity ────────────────────────────────────────────────
     private fun openPreview() {
         val intent = Intent(this, PreviewActivity::class.java)
         intent.putStringArrayListExtra("image_list", ArrayList(imageList))
         startActivity(intent)
     }
 
-    // ===== XIN QUYỀN =====
+    // ── Xin quyền Camera ─────────────────────────────────────────────────
     private fun requestCameraPermission() {
         PermissionX.init(this)
             .permissions(Manifest.permission.CAMERA)
             .request { allGranted, _, deniedList ->
-                if (allGranted) {
-                    startCamera()
-                } else {
-                    Toast.makeText(this, "Denied: $deniedList", Toast.LENGTH_SHORT).show()
-                }
+                if (allGranted) startCamera()
+                else Toast.makeText(this, "Cần quyền Camera: $deniedList", Toast.LENGTH_SHORT).show()
             }
     }
 
-    // ===== CHỤP ẢNH =====
+    // ── Chụp ảnh ─────────────────────────────────────────────────────────
     private fun takePhoto() {
-
         val photoFile = File(
             externalMediaDirs.firstOrNull(),
             "IMG_${System.currentTimeMillis()}.jpg"
         )
-
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
         imageCapture.takePicture(
             outputOptions,
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback {
-
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-
-                    // ❗ CHỈ CROP - KHÔNG ADD LIST Ở ĐÂY
                     openCrop(photoFile.absolutePath)
                 }
-
                 override fun onError(exception: ImageCaptureException) {
-                    Toast.makeText(
-                        this@ScannerActivity,
-                        "Error: ${exception.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this@ScannerActivity, "Lỗi: ${exception.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         )
     }
 
-    // ===== CROP =====
+    // ── Mở UCrop ─────────────────────────────────────────────────────────
     private fun openCrop(imagePath: String) {
-
         val sourceUri = Uri.fromFile(File(imagePath))
-        val destinationUri = Uri.fromFile(
-            File(cacheDir, "cropped_${System.currentTimeMillis()}.jpg")
-        )
+        val destinationUri = Uri.fromFile(File(cacheDir, "cropped_${System.currentTimeMillis()}.jpg"))
 
         cropLauncher.launch(
             UCrop.of(sourceUri, destinationUri)
@@ -137,86 +158,69 @@ class ScannerActivity : AppCompatActivity() {
         )
     }
 
-    // ===== KẾT QUẢ CROP =====
+    // ── Kết quả Crop ─────────────────────────────────────────────────────
     private val cropLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-
         if (result.resultCode == RESULT_OK) {
-
             val data = result.data ?: return@registerForActivityResult
             val resultUri = UCrop.getOutput(data) ?: return@registerForActivityResult
-
             val croppedPath = resultUri.path ?: return@registerForActivityResult
-            // ✅ ADD VÀO LIST Ở ĐÂY (QUAN TRỌNG NHẤT)
-            imageList.add(croppedPath)
-            Log.d("SIZE", "Scanner = ${imageList.size}")
 
-            // ✅ update preview
+            imageList.add(croppedPath)
+            Log.d("Scanner", "Ảnh đã chụp: ${imageList.size}")
+
             val bitmap = rotateBitmapIfNeeded(croppedPath)
             binding.imgPreview.setImageBitmap(bitmap)
             binding.imgPreview.visibility = View.VISIBLE
         }
     }
 
-    // ===== CAMERA =====
+    // ── Khởi động Camera ─────────────────────────────────────────────────
     private fun startCamera() {
+        val prefs = getSharedPreferences("camera_settings", Context.MODE_PRIVATE)
 
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-
         cameraProviderFuture.addListener({
-
             val cameraProvider = cameraProviderFuture.get()
 
             val preview = Preview.Builder().build().also {
                 it.setSurfaceProvider(previewView.surfaceProvider)
             }
 
-            imageCapture = ImageCapture.Builder().build()
+            imageCapture = ImageCapture.Builder()
+                .setFlashMode(
+                    if (prefs.getBoolean("auto_flash", false))
+                        ImageCapture.FLASH_MODE_ON
+                    else
+                        ImageCapture.FLASH_MODE_OFF
+                )
+                .build()
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
             cameraProvider.unbindAll()
-
-            cameraProvider.bindToLifecycle(
-                this,
-                cameraSelector,
-                preview,
-                imageCapture
-            )
+            cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
 
         }, ContextCompat.getMainExecutor(this))
     }
 
-    // ===== XOAY ẢNH =====
+    // ── Xoay ảnh theo EXIF ───────────────────────────────────────────────
     private fun rotateBitmapIfNeeded(path: String): Bitmap {
-
         val bitmap = BitmapFactory.decodeFile(path)
-
         val exif = ExifInterface(path)
         val orientation = exif.getAttributeInt(
             ExifInterface.TAG_ORIENTATION,
             ExifInterface.ORIENTATION_NORMAL
         )
-
         val matrix = Matrix()
-
         when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+            ExifInterface.ORIENTATION_ROTATE_90  -> matrix.postRotate(90f)
             ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
             ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
             else -> return bitmap
         }
-
-        return Bitmap.createBitmap(
-            bitmap,
-            0,
-            0,
-            bitmap.width,
-            bitmap.height,
-            matrix,
-            true
-        )
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
 
     override fun onDestroy() {

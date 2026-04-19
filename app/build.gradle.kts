@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -17,6 +18,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // ⚠️ ĐỔI IP NÀY thành IP máy Mac đang chạy XAMPP (cùng WiFi với điện thoại)
+        // Tìm IP: mở Terminal → gõ: ifconfig | grep "inet " | grep -v 127
+        // Hoặc dùng ngrok URL nếu test ngoài mạng
+        buildConfigField("String", "BASE_URL", "\"https://zelma-undamageable-odis.ngrok-free.dev/webapi/\"")
     }
 
     buildTypes {
@@ -59,4 +65,18 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("com.github.yalantis:ucrop:2.2.6")
     implementation("com.itextpdf:itext7-core:7.2.5")
+    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
+    implementation("com.google.firebase:firebase-auth")
+
+    // Retrofit + OkHttp (gọi API CI3)
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // ViewPager2 + Fragment (cho Settings tabs)
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
+    implementation("androidx.fragment:fragment-ktx:1.8.5")
+
+
 }

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F0F4FF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Pro License Banner -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="28dp"
+                android:gravity="center"
+                android:background="#1A1A2E">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⭐ PRO LICENSE"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFD700"
+                    android:letterSpacing="0.1" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="DocScanner Professional"
+                    android:textSize="14sp"
+                    android:textColor="#AAAACC" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="#1E7D34"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✓  ĐÃ KÍCH HOẠT"
+                        android:textColor="#FFFFFF"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- License Details -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="3dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#FFFFFF"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🔑  Chi tiết giấy phép"
+                    android:textSize="13sp"
+                    android:textColor="#888888"
+                    android:layout_marginBottom="4dp" />
+
+                <!-- License Key -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+                    android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="License Key"
+                        android:textSize="15sp" android:textColor="#1A1A2E" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="DS-PRO-2026-XXXX" android:textColor="#888888" android:textSize="13sp" />
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" />
+
+                <!-- Type -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="48dp"
+                    android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Loại giấy phép"
+                        android:textSize="15sp" android:textColor="#1A1A2E" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Pro (Annual)" android:textColor="#FFD700" android:textStyle="bold" />
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" />
+
+                <!-- Activated date -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="48dp"
+                    android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Ngày kích hoạt"
+                        android:textSize="15sp" android:textColor="#1A1A2E" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="15/04/2026" android:textColor="#888888" />
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" />
+
+                <!-- Expires -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="48dp"
+                    android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Hết hạn"
+                        android:textSize="15sp" android:textColor="#1A1A2E" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="15/04/2027" android:textColor="#1E7D34" android:textStyle="bold" />
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" />
+
+                <!-- Devices -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="48dp"
+                    android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Thiết bị đã kích hoạt"
+                        android:textSize="15sp" android:textColor="#1A1A2E" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="1 / 3" android:textColor="#888888" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Pro Features Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="3dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#FFFFFF"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✨  Tính năng Pro đã mở khóa"
+                    android:textSize="13sp"
+                    android:textColor="#888888"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView android:layout_width="match_parent" android:layout_height="44dp"
+                    android:text="✅  Scan không giới hạn tài liệu"
+                    android:textSize="14sp" android:textColor="#1A1A2E" android:gravity="center_vertical" />
+                <TextView android:layout_width="match_parent" android:layout_height="44dp"
+                    android:text="✅  Xuất PDF chất lượng cao"
+                    android:textSize="14sp" android:textColor="#1A1A2E" android:gravity="center_vertical" />
+                <TextView android:layout_width="match_parent" android:layout_height="44dp"
+                    android:text="✅  Lưu trữ Cloud không giới hạn"
+                    android:textSize="14sp" android:textColor="#1A1A2E" android:gravity="center_vertical" />
+                <TextView android:layout_width="match_parent" android:layout_height="44dp"
+                    android:text="✅  Nhận dạng văn bản (OCR)"
+                    android:textSize="14sp" android:textColor="#1A1A2E" android:gravity="center_vertical" />
+                <TextView android:layout_width="match_parent" android:layout_height="44dp"
+                    android:text="✅  Không có quảng cáo"
+                    android:textSize="14sp" android:textColor="#1A1A2E" android:gravity="center_vertical" />
+                <TextView android:layout_width="match_parent" android:layout_height="44dp"
+                    android:text="✅  Hỗ trợ ưu tiên 24/7"
+                    android:textSize="14sp" android:textColor="#1A1A2E" android:gravity="center_vertical" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Fake Renew Button -->
+        <Button
+            android:id="@+id/btnRenewLicense"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="24dp"
+            android:text="🔄  Gia hạn giấy phép"
+            android:backgroundTint="#1A1A2E"
+            android:textColor="#FFD700"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</ScrollView>
